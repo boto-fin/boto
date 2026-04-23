@@ -1,0 +1,12 @@
+[package]
+name = "core-application"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+core-domain = { path = "../core-domain" }
+thiserror = { workspace = true }
+
+[lints]
+workspace = true

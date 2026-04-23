@@ -1,0 +1,14 @@
+[package]
+name = "core-infrastructure"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+core-application = { path = "../core-application" }
+core-domain = { path = "../core-domain" }
+shared-kernel = { path = "../../shared-kernel" }
+async-trait = { workspace = true }
+
+[lints]
+workspace = true
