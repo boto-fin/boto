@@ -6,13 +6,13 @@ fmt:
     cargo fmt --all -- --check
 
 check:
-    cargo check --workspace --all-targets
+    cargo check --workspace --all-targets --locked
 
 test:
-    cargo test --workspace --all-targets
+    cargo test --workspace --all-targets --locked
 
 clippy:
-    cargo clippy --workspace --all-targets -- --deny warnings
+    cargo clippy --workspace --all-targets --locked -- --deny warnings
 
 ci: fmt check clippy test
 
