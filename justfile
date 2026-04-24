@@ -8,8 +8,8 @@ fmt:
 check:
     cargo check --workspace --all-targets --locked
 
-test:
-    cargo test --workspace --all-targets --locked
+test *args:
+    ./tools/test {{args}}
 
 clippy:
     cargo clippy --workspace --all-targets --locked -- --deny warnings
