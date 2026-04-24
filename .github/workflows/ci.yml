@@ -39,5 +39,14 @@ jobs:
           cache-on-failure: true
           cache-bin: false
 
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
       - name: Run CI
         run: just ci
+
+      - name: Run Nix flake checks
+        run: just nix-check
