@@ -94,7 +94,7 @@ The repository also has a checked-in `Cargo.lock`, and the workspace uses resolv
 
 ```toml
 [workspace]
-resolver = "2"
+resolver = "3"
 members = [
     "crates/shared-kernel",
     "crates/core/core-domain",

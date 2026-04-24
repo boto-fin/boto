@@ -7,8 +7,20 @@ trap 'rm -f "$output_file"' EXIT
 
 case "$runner" in
   nextest)
-    cmd=(cargo nextest run)
-    success_name="cargo nextest run"
+    if ! command -v cargo >/dev/null 2>&1; then
+      echo "error: RUST_TEST_RUNNER='$runner' requires cargo, but cargo was not found on PATH" >&2
+      exit 127
+    fi
+
+    if cargo nextest --version >/dev/null 2>&1; then
+      cmd=(cargo nextest run)
+      success_name="cargo nextest run"
+    else
+      cmd=(cargo test)
+      success_name="cargo test"
+      echo "warning: RUST_TEST_RUNNER='$runner' selected, but cargo-nextest is not installed; falling back to success_name='$success_name'" >&2
+      echo "warning: install cargo-nextest or set RUST_TEST_RUNNER=cargo to make this fallback explicit" >&2
+    fi
     ;;
   cargo)
     cmd=(cargo test)

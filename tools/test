@@ -4,10 +4,21 @@ set -euo pipefail
 silent_on_success=false
 args=()
 
+stop_parsing=false
+
 for arg in "$@"; do
+  if "$stop_parsing"; then
+    args+=("$arg")
+    continue
+  fi
+
   case "$arg" in
     --silent-on-success)
       silent_on_success=true
+      ;;
+    --)
+      stop_parsing=true
+      args+=("$arg")
       ;;
     *)
       args+=("$arg")
