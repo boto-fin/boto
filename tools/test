@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+silent_on_success=false
+args=()
+
+for arg in "$@"; do
+  case "$arg" in
+    --silent-on-success)
+      silent_on_success=true
+      ;;
+    *)
+      args+=("$arg")
+      ;;
+  esac
+done
+
+if "$silent_on_success"; then
+  ./tools/test-rust --workspace --all-targets --locked "${args[@]}"
+else
+  cargo test --workspace --all-targets --locked "${args[@]}"
+fi

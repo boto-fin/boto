@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+runner="${RUST_TEST_RUNNER:-nextest}"
+output_file="$(mktemp "${TMPDIR:-/tmp}/test-rust.XXXXXX")"
+trap 'rm -f "$output_file"' EXIT
+
+case "$runner" in
+  nextest)
+    cmd=(cargo nextest run)
+    success_name="cargo nextest run"
+    ;;
+  cargo)
+    cmd=(cargo test)
+    success_name="cargo test"
+    ;;
+  *)
+    echo "error: invalid RUST_TEST_RUNNER value '$runner'" >&2
+    echo "supported values: nextest (default), cargo" >&2
+    exit 2
+    ;;
+esac
+
+if "${cmd[@]}" "$@" >"$output_file" 2>&1; then
+  echo "✅ ${success_name} passed"
+else
+  status=$?
+  cat "$output_file"
+  exit "$status"
+fi
