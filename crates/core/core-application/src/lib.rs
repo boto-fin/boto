@@ -1,6 +1,2 @@
-pub mod dto;
-pub mod error;
-pub mod use_cases;
-
-pub use dto::CreateCoreCommand;
-pub use error::CoreApplicationError;
+// Application layer shell.
+// Use cases will be added here once the domain model is introduced.
