@@ -48,5 +48,8 @@ jobs:
       - name: Run CI
         run: just ci
 
+      - name: Run change-risk check
+        run: nix develop --command just crap-check
+
       - name: Run Nix flake checks
         run: just nix-check

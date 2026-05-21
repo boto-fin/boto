@@ -43,6 +43,19 @@
           src = craneLib.cleanCargoSource ./.;
           systemDeps = with pkgs; [  ];
 
+          cargo-crap = pkgs.rustPlatform.buildRustPackage rec {
+            pname = "cargo-crap";
+            version = "0.2.0";
+
+            src = pkgs.fetchCrate {
+              inherit pname version;
+              hash = "sha256-WH8bexRxJTs4ifpC8NxORjA939H+2/uMzOcR7TR8ggk=";
+            };
+
+            cargoHash = "sha256-8WZqSSBxbTOyL/TEOCmP+JYERLgxnsVcO/CfaYi2uQ8=";
+            doCheck = false;
+          };
+
           commonArgs = {
             inherit src;
             pname = "boto";
@@ -89,6 +102,8 @@
             packages = (with pkgs; [
               toolchain
               just
+              cargo-llvm-cov
+              cargo-crap
             ]) ++ systemDeps;
 
             RUST_SRC_PATH = "${toolchain}/lib/rustlib/src/rust/library";
