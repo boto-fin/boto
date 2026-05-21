@@ -1,5 +1,2 @@
-pub mod event_publisher;
-pub mod repository;
-
-pub use event_publisher::NoopEventPublisher;
-pub use repository::NoopCoreRepository;
+// Infrastructure layer shell.
+// Persistence, rail, and external service adapters belong here once ports exist.
