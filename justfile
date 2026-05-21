@@ -14,6 +14,13 @@ test *args:
 clippy:
     cargo clippy --workspace --all-targets --locked -- --deny warnings
 
+crap *args:
+    cargo llvm-cov --workspace --all-targets --locked --lcov --output-path lcov.info
+    cargo crap --lcov lcov.info {{args}}
+
+crap-check:
+    just crap --fail-above --threshold 30
+
 ci: fmt check clippy test
 
 run *args:
