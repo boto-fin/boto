@@ -9,14 +9,64 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect changed files
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    outputs:
+      rust: ${{ steps.filter.outputs.rust }}
+      change-risk: ${{ steps.filter.outputs.change-risk }}
+      nix: ${{ steps.filter.outputs.nix }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Detect relevant changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            rust:
+              - '.github/workflows/ci.yml'
+              - 'Cargo.toml'
+              - 'Cargo.lock'
+              - 'rust-toolchain.toml'
+              - 'justfile'
+              - 'tools/**'
+              - 'crates/**'
+              - '**/*.rs'
+            change-risk:
+              - '.github/workflows/ci.yml'
+              - 'Cargo.toml'
+              - 'Cargo.lock'
+              - 'rust-toolchain.toml'
+              - 'justfile'
+              - 'tools/**'
+              - 'crates/**'
+              - '**/*.rs'
+            nix:
+              - '.github/workflows/ci.yml'
+              - 'flake.nix'
+              - 'flake.lock'
+              - 'Cargo.toml'
+              - 'Cargo.lock'
+              - 'rust-toolchain.toml'
+              - 'justfile'
+              - 'tools/**'
+              - 'crates/**'
+              - '**/*.rs'
+
   rust:
     name: Rust
+    needs: changes
+    if: needs.changes.outputs.rust == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 15
 
@@ -39,17 +89,63 @@ jobs:
           cache-on-failure: true
           cache-bin: false
 
+      - name: Run Rust quality checks
+        run: just ci
+
+  change-risk:
+    name: Change-risk check
+    needs: changes
+    if: needs.changes.outputs.change-risk == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          cache: false
+          rustflags: ""
+
+      - name: Install just
+        uses: taiki-e/install-action@just
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+          cache-bin: false
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+
+      - name: Install cargo-crap
+        run: cargo install cargo-crap --version 0.2.0 --locked
+
+      - name: Run change-risk check
+        run: just crap-check
+
+  nix:
+    name: Nix flake check
+    needs: changes
+    if: needs.changes.outputs.nix == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install just
+        uses: taiki-e/install-action@just
+
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
-
-      - name: Run CI
-        run: just ci
-
-      - name: Run change-risk check
-        run: nix develop --command just crap-check
 
       - name: Run Nix flake checks
         run: just nix-check
